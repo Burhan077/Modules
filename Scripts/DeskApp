@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Ask for inputs
+read -p "Enter the application name (Name=): " APP_NAME
+read -p "Enter the executable command (Exec=): " EXEC_CMD
+read -p "Enter the path to the icon file (Icon=): " ICON_PATH
+read -p "Enter teminal boolean(Terminal=): " TERMINAL_BOOL
+# Sanitize filename
+FILENAME=$(echo "$APP_NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]').desktop
+
+# Desktop entry directory
+DESKTOP_DIR="$HOME/.local/share/applications"
+
+# Make sure the directory exists
+#mkdir -p "$DESKTOP_DIR"
+
+# Write the .desktop file
+cat > "$DESKTOP_DIR/$FILENAME" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=$APP_NAME
+Exec=$EXEC_CMD  --user-data-dir=$HOME/.config/$APP_NAME
+Icon=$ICON_PATH
+Terminal=$TERMINAL_BOOL
+Categories=Utility;
+EOF
+
+# Make it executable
+chmod +x "$DESKTOP_DIR/$FILENAME"
+
+# Update the desktop database (won't hurt if already updated)
+echo "🔄 Updating desktop database..."
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || echo "⚠️  'update-desktop-database' failed or not found. You may need to install 'desktop-file-utils'."
+
+echo "✅ Desktop entry created at: $DESKTOP_DIR/$FILENAME"
+echo ""
+read -rp "Press Enter to close this window..."

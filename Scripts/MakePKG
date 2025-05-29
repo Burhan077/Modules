@@ -1,0 +1,135 @@
+#!/bin/bash
+
+#set -e
+
+echo "-----------------------------------------------------------------"
+echo "🌐 Build a Nativefier App for Linux"
+echo "💥 Deletes all *-debug packages except vim-debug"
+echo "📦 Installs everything to /home/agent90/Mount/<AppName>"
+echo "-----------------------------------------------------------------"
+
+# === 💣 Delete all -debug packages except vim-debug
+echo "🧹 Cleaning up orphaned -debug packages..."
+
+# Get list of debug packages excluding vim-debug
+debug_pkgs=$(pacman -Qq | grep -- '-debug$' | grep -v '^vim-debug$')
+
+# Debug output to check what is found
+echo "👀 Found the following debug packages: $debug_pkgs"
+
+# If there are debug packages, remove them
+if [[ -n "$debug_pkgs" ]]; then
+    echo "🗑️ Removing: $debug_pkgs"
+    sudo pacman -Rns --noconfirm $debug_pkgs
+    # Check if pacman ran successfully
+    if [ $? -eq 0 ]; then
+        echo "✅ Successfully removed debug packages."
+    else
+        echo "❌ Error: Failed to remove some debug packages."
+        exit 1
+    fi
+else
+    echo "✅ No unnecessary -debug packages found."
+fi
+
+# === ✨ Prompt for user input
+read -p "📛 Gimme a Name: " app_name
+read -p "🔗 Gimme a URL: " app_url
+read -p "🖼️ Path to icon (PNG): " icon_path
+
+build_dir="/home/agent90/Mount/$app_name"
+
+echo "📂 Creating build directory at $build_dir..."
+mkdir -p "$build_dir"
+cp "$icon_path" "$build_dir/icon.png"
+
+# === 🛠 auto-reload.js ===
+cat > "$build_dir/auto-reload.js" <<'EOF'
+setInterval(() => {
+  const errorScreen = document.querySelector('div._2dfCc');
+  if (errorScreen) {
+    location.reload();
+  }
+}, 5000);
+EOF
+
+# === 🌒 dark-mode.css ===
+cat > "$build_dir/dark-mode.css" <<'EOF'
+@media (prefers-color-scheme: dark) {
+  html {
+    filter: invert(1) hue-rotate(180deg);
+  }
+  img, video {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+EOF
+
+# === 🖥 Desktop entry ===
+cat > "$build_dir/$app_name.desktop" <<EOF
+[Desktop Entry]
+Name=$app_name
+Exec=$app_name
+Icon=$app_name
+Type=Application
+Categories=Network;Chat;
+StartupNotify=true
+EOF
+
+# === 📦 PKGBUILD ===
+cat > "$build_dir/PKGBUILD" <<EOF
+# Maintainer: agent90
+
+pkgname=$app_name
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Standalone $app_name Desktop App using Nativefier"
+arch=('x86_64')
+url="$app_url"
+license=('MIT')
+depends=()
+makedepends=('nodejs' 'npm')
+source=("icon.png"
+        "dark-mode.css"
+        "auto-reload.js"
+        "$app_name.desktop")
+md5sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+build() {
+  cd "\$srcdir"
+  npm install nativefier
+
+  local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.105 Safari/537.36"
+
+  ./node_modules/.bin/nativefier \\
+    --name "$app_name" \\
+    --user-agent "\$ua" \\
+    --inject "dark-mode.css" \\
+    --inject "auto-reload.js" \\
+    --single-instance \\
+    --tray \\
+    --disable-dev-tools \\
+    --internal-urls ".*" \\
+    "$app_url" \\
+    "\$srcdir/${app_name}-build"
+}
+
+package() {
+  install -d "\$pkgdir/home/agent90/Mount/$app_name"
+  cp -r "\$srcdir/${app_name}-build/"* "\$pkgdir/home/agent90/Mount/$app_name/"
+
+  install -d "\$pkgdir/usr/bin"
+  ln -s /home/agent90/Mount/$app_name/$app_name "\$pkgdir/usr/bin/$app_name"
+
+  install -Dm644 "\$srcdir/$app_name.desktop" "\$pkgdir/usr/share/applications/$app_name.desktop"
+  install -Dm644 "\$srcdir/icon.png" "\$pkgdir/usr/share/pixmaps/$app_name.png"
+}
+EOF
+
+# === 🧪 Build the package ===
+cd "$build_dir"
+echo "🚀 Running makepkg -si --noconfirm..."
+makepkg -si --noconfirm
+
+echo "✅ Done! App '$app_name' installed to /home/agent90/Mount/$app_name and added to desktop."
+

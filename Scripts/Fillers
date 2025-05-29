@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Get current directory
+CURRENT_DIR=$(pwd)
+echo "📂 Current directory: $CURRENT_DIR"
+
+# Ask for the icon file path
+read -rp "👉 Enter full path to the icon file you want to duplicate: " ICON_PATH
+
+# Check if the icon file exists
+if [ ! -f "$ICON_PATH" ]; then
+    echo "❌ Error: Icon file not found!"
+    exit 1
+fi
+
+# Define your 50 spicy tech names
+NAMES=(
+    core dump meta kernel payload stack frame segfault buffer
+    overflow opcode malloc free heap cache thread process binary
+    bit byte nibble register interrupt syscall daemon fork exec
+    sandbox probe inject exploit leak crypto cipher entropy random
+    mutex pipe socket fd inode driver bus virtual root sudo
+    uid pid signal pointer linker loader swap shard quantum
+)
+
+# Copy with these sleek names
+echo "🚀 Copying icon 50 times with spicy tech names..."
+for NAME in "${NAMES[@]}"; do
+    cp "$ICON_PATH" "$CURRENT_DIR/$NAME"
+    echo "✅ Copied as: $NAME"
+done
+
+echo "🎉 All done! 50 copies created in: $CURRENT_DIR"
+

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Check if shc is installed
+if ! command -v shc &> /dev/null; then
+    echo "❌ shc is not installed. Install it and try again."
+    exit 1
+fi
+
+# Check/create the target directory
+target_dir="/home/agent90/Sys"
+mkdir -p "$target_dir"
+
+while true; do
+    # Prompt user for shell script path and desired app name
+    read -rp "Enter the PATH to the shell script: " bin_path
+    read -rp "Enter desired output App Name: " app_name
+
+    # Check if the binary already exists in the target directory
+    if [ -f "$target_dir/$app_name" ]; then
+        echo "❌ A binary named '$app_name' already exists in the target directory."
+
+        # Ask the user if they want to delete the existing binary
+        read -rp "👉 Do you want to delete the existing binary '$app_name'? (y/n): " delete_choice
+        if [[ "$delete_choice" =~ ^[Yy]$ ]]; then
+            echo "🗑️ Deleting the existing binary '$app_name'..."
+            rm "$target_dir/$app_name"
+        else
+            # Ask the user to rename the binary to avoid conflict
+            read -rp "👉 Enter a new name for the binary to avoid conflict: " new_name
+            app_name="$new_name"
+            echo "⚠️ Renaming the binary to '$app_name'."
+        fi
+    fi
+
+    # Compile using shc
+    echo "⚙️ Compiling $bin_path into binary '$app_name'..."
+    shc -f "$bin_path" -o "$target_dir/$app_name"
+
+    # Remove the intermediate .x.c file created by shc
+    x_c_file="${bin_path}.x.c"
+    if [ -f "$x_c_file" ]; then
+        echo "🧹 Cleaning up intermediate file: $x_c_file"
+        rm "$x_c_file"
+    fi
+
+    # Check if the binary was created
+    if [ -f "$target_dir/$app_name" ]; then
+        echo "✅ Binary '$app_name' created successfully."
+        echo "🚀 Binary '$app_name' saved to $target_dir!"
+    else
+        echo "❌ Error: Could not find the generated binary '$app_name'."
+        read -rp "👉 Retry? (y/n): " retry_choice
+        if [[ ! "$retry_choice" =~ ^[Yy]$ ]]; then
+            echo "🔚 Exiting."
+            break
+        fi
+    fi
+
+    # Ask if user wants to continue creating more binaries
+    read -rp "👉 Do you want to create another binary? (y/n): " continue_choice
+    if [[ ! "$continue_choice" =~ ^[Yy]$ ]]; then
+        echo "🔚 Exiting. No more binaries will be created."
+        break
+    fi
+done
+
+echo ""
+read -rp "Press Enter to close this window (or just exit)."
+

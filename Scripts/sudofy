@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# List of commands to wrap with sudo
+commands=(
+  journalctl reboot poweroff shutdown halt useradd usermod bootctl cp mv rm
+  mkdir cat rmdir rmmod insmod chown chmod touch nano modprobe
+  dmesg mount umount cfdisk fdisk gdisk
+  partitionmanager mkfs grub-mkconfig lsblk blkid ping mkinitcpio ip ifconfig
+  pacman
+)
+
+BIN_DIR="$HOME/.bin"
+
+for cmd in "${commands[@]}"; do
+  cat > "$BIN_DIR/$cmd" <<EOF
+#!/bin/bash
+sudo /usr/bin/$cmd "\$@"
+EOF
+  chmod +x "$BIN_DIR/$cmd"
+done
+

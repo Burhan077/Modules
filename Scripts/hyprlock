@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Idle time in milliseconds (3 minutes = 180000 ms)
+IDLE_THRESHOLD=180000
+
+while true; do
+  idle_time=$(xprintidle)
+  
+  if [ "$idle_time" -ge "$IDLE_THRESHOLD" ]; then
+    echo "[snooze] Inactive for 5 minutes. Suspending..."
+    systemctl suspend
+  fi
+
+  sleep 30
+done
+

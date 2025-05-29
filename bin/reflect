@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo reflector --latest 10 --verbose --protocol https --sort rate --download-timeout 15 --save /etc/pacman.d/mirrorlist

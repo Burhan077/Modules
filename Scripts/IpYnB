@@ -1,0 +1,41 @@
+#!/bin/zsh
+
+# -------- USER INPUT --------
+echo -n "📁 Enter the full path to the folder containing .py files: "
+read source_dir
+
+# -------- DESTINATION --------
+target_dir="/home/agent90/Python/Ipynb"
+
+# -------- REQUIREMENT CHECKS --------
+if ! command -v jupytext &> /dev/null; then
+  echo "❌ jupytext not found! Run: pip install jupytext"
+  exit 1
+fi
+
+if [[ ! -d "$source_dir" ]]; then
+  echo "❌ That directory doesn't exist: $source_dir"
+  exit 1
+fi
+
+# -------- MAKE TARGET DIR IF MISSING --------
+echo "📁 Ensuring target directory exists: $target_dir"
+mkdir -p "$target_dir"
+
+# -------- COPY .py FILES --------
+echo "📦 Copying .py files to $target_dir ..."
+cp "$source_dir"/*.py "$target_dir"
+
+# -------- CONVERT TO .ipynb --------
+echo "🔁 Converting copied files to .ipynb ..."
+for py_file in "$target_dir"/*.py; do
+  jupytext --to notebook "$py_file"
+  echo "✅ Converted: $(basename "$py_file") → $(basename "$py_file" .py).ipynb"
+done
+
+# -------- REMOVE COPIED .py FILES --------
+echo "🧹 Cleaning up .py files from $target_dir ..."
+rm "$target_dir"/*.py
+
+echo "🎉 All done! Only .ipynb files remain in: $target_dir"
+

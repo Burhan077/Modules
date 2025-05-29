@@ -1,0 +1,12 @@
+#!/bin/bash
+# mkroot - easily reset file ownership to user (UID 0)
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: filectl <file_or_directory> [more_paths...]"
+  exit 1
+fi
+
+sudo chown -R 0:0 "$@"
+	         	
+
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Launch real Zoom
+#exec /usr/bin/Zoom "$@"
+/opt/google/chrome/google-chrome \
+  --profile-directory=Default \
+  --ozone-platform=wayland \
+  --enable-features=WebBluetoothNewPermissionsBackend \
+  --no-sandbox \
+  --app-id=fdbibeljcgcjkpedilpdafnjdmbjjjep
+
+# Launch the tray in background
+python /home/agent90/.config/zoomtray/zoomtray.py &
+
+
+

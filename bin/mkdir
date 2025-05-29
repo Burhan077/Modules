@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Create directories with sudo and -p (always)
+sudo /usr/bin/mkdir -p "$@"
+
+# Loop through arguments ONLY IF they don't start with dash (ignore options)
+for dir in "$@"; do
+    # Skip anything starting with '-'
+    case "$dir" in
+        -*) continue ;;
+    esac
+
+    # Get absolute path
+    abs_dir=$(realpath "$dir")
+
+    # Loop upward to root, changing ownership recursively
+    while [ "$abs_dir" != "/" ] && [ -n "$abs_dir" ]; do
+        sudo chown "$USER":"$USER" "$abs_dir"
+        abs_dir=$(dirname "$abs_dir")
+    done
+done
+

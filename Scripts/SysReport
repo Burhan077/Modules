@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# System Information
+echo "🖥️  System Information Report"
+echo "---------------------------------------------------------"
+echo "Operating System: $(lsb_release -d | cut -f2-)"
+echo "CPU: $(lscpu | grep 'Model name' | cut -d: -f2)"
+echo "Total RAM: $(free -h | grep Mem | awk '{print $2}')"
+echo "Disk Usage: $(df -h | grep '/$' | awk '{print $5}')"
+echo "Uptime: $(uptime -p)"
+echo "OS Age: 4211 Days"
+echo "Shell: Advanced X-User Shell {ASH} Custom"
+echo "----------------------------------------------------------"
+echo "Report generated at: $(date)"
+
+# Pause the script so the terminal stays open
+read -p "Press any key to exit..."
+

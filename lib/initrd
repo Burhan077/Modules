@@ -1,0 +1,44 @@
+#!/bin/zsh
+
+setopt nullglob  
+MOD_BASE="/mod"
+
+# Function to remove duplicates from PATH while preserving order
+dedup_path() {
+  local -a parts newparts
+  IFS=':' read -r -A parts <<< "$1"
+  newparts=()
+  for p in $parts; do
+    # Normalize by removing trailing slash
+    p="${p%/}"
+    # Add only if not already in newparts
+    if [[ ! " ${newparts[@]} " =~ " ${p} " ]]; then
+      newparts+=("$p")
+    fi
+  done
+  echo "${(j.:.)newparts}"
+}
+
+# Start with existing PATH normalized & deduped
+PATH=$(dedup_path "$PATH")
+
+# Walk through directories recursively in /mod
+for dir in "$MOD_BASE"/**(/); do
+  # Skip base dir itself if no executables inside (optional)
+  if [[ "$dir" == "$MOD_BASE" ]]; then
+    continue
+  fi
+
+  # Check if directory has any executable files
+  if [[ -n "$(find "$dir" -maxdepth 1 -type f -executable 2>/dev/null)" ]]; then
+    # Normalize dir (remove trailing slash)
+    dir="${dir%/}"
+    # Prepend if not already in PATH
+    if [[ ":$PATH:" != *":$dir:"* ]]; then
+      PATH="$dir:$PATH"
+    fi
+  fi
+done
+export PATH
+
+

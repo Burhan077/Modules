@@ -1,0 +1,116 @@
+#!/usr/bin/env sh
+
+# ------------------ CONFIG ------------------
+scrDir=$(dirname "$(realpath "$0")")
+confDir="${scrDir}/config"
+icon_dir="/home/agent90/.config/dunst/icons/brightness"  # Your icon directory
+use_swayosd=false
+notify_id=91191
+default_step=5  # Default increment step of 5%
+# -------------------------------------------
+
+# Check for swayOSD
+if command -v swayosd-client >/dev/null 2>&1 && pgrep -x swayosd-server >/dev/null; then
+    use_swayosd=true
+fi
+
+# ------------------ NOTIFY ------------------
+notify_brightness() {
+    # Get current and max brightness
+    local level=$(brightnessctl g)  # Current brightness level
+    local max=$(brightnessctl m)    # Max brightness level
+    local percent=$((level * 100 / max))  # Percentage of current brightness
+
+    # Round to nearest 5% for icons
+    local rounded=$(( (percent + 2) / 5 * 5 ))  # Nearest multiple of 5
+    [ "$rounded" -gt 100 ] && rounded=100
+    [ "$rounded" -lt 0 ] && rounded=0
+
+    # Set icon based on the brightness level
+    local icon="${icon_dir}/vol-${rounded}.svg"
+
+    # Nerdy info about Intel backlight (just for fun)
+    local intel_info="Overdrive"
+
+    # Send notification with nerdy backlight info
+    notify-send -r $notify_id -t 1500 -h int:value:$percent -u normal -i "$icon" \
+        "💡 Brightness Adjusted" \
+        "Current brightness: ${percent}%\n${intel_info}"
+}
+# --------------------------------------------
+
+# ----------- BRIGHTNESS CHANGE --------------
+change_brightness() {
+    local action=$1
+    local step=${2:-$default_step}
+    local current=$(brightnessctl g)
+    local max=$(brightnessctl m)
+    local delta=$((max * step / 100))
+    local new
+
+    if [ "$action" = "i" ]; then
+        new=$((current + delta))
+        [ "$new" -gt "$max" ] && new="$max"  # Prevent exceeding max brightness
+    elif [ "$action" = "d" ]; then
+        new=$((current - delta))
+        [ "$new" -lt 1 ] && new=1  # Prevent going below 1% brightness
+    else
+        print_usage
+    fi
+
+    if $use_swayosd; then
+        swayosd-client --brightness "$([ "$action" = "i" ] && echo "+$step" || echo "-$step")"
+    else
+        # Use brightnessctl with the proper syntax for decreasing brightness
+        if [ "$action" = "i" ]; then
+            brightnessctl set +${step}%
+        else
+            brightnessctl set ${step}%-  # Decrease by percentage
+        fi
+        notify_brightness
+    fi
+}
+# --------------------------------------------
+
+# ------------------ USAGE ------------------
+print_usage() {
+    cat <<EOF
+Usage: $(basename "$0") <action> [step]
+
+Actions:
+    i     Increase brightness
+    d     Decrease brightness
+    m     Toggle min/max brightness (useful for flipping modes)
+
+Examples:
+    $(basename "$0") i 10     # Increase brightness by 10%
+    $(basename "$0") d 10     # Decrease by 10%
+EOF
+    exit 1
+}
+# --------------------------------------------
+
+# ------------- TOGGLE MIN/MAX ---------------
+toggle_brightness() {
+    local current=$(brightnessctl g)
+    local max=$(brightnessctl m)
+    local half=$((max / 2))
+
+    if [ "$current" -le "$half" ]; then
+        brightnessctl set 100%  # Set to max brightness
+    else
+        brightnessctl set 10%  # Set to 10% brightness
+    fi
+
+    notify_brightness
+}
+# --------------------------------------------
+
+# ---------------- MAIN ENTRY ----------------
+case "$1" in
+    i|d) change_brightness "$1" "$2" ;;  # Increase or decrease brightness
+    m) toggle_brightness ;;  # Toggle between min/max brightness
+    *) print_usage ;;  # Show usage
+esac
+# --------------------------------------------
+

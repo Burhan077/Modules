@@ -1,0 +1,11 @@
+#!/bin/bash
+# filectl - easily reset file ownership to user (UID 1000)
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: filectl PATH_TO_DIRECTORY_HERE"
+  exit 1
+fi
+
+echo "🔧 Changing ownership to UID 1000:1000 for: $@"
+sudo chown -R 1000:1000 "$@"
+	         	

@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Function to print colorful messages
+print_info() { echo -e "\e[34mℹ️  $1\e[0m"; }
+print_success() { echo -e "\e[32m✅ $1\e[0m"; }
+print_error() { echo -e "\e[31m❌ $1\e[0m"; }
+
+# Prompt for inputs
+read -rp "📂 Enter the directory to initialize git repo: " dir
+read -rp "📝 Enter the commit message for the initial commit (default: 'Initial commit'): " commit_message
+
+# Set default commit message if empty
+commit_message=${commit_message:-Initial commit}
+
+# Validate directory
+if [ ! -d "$dir" ]; then
+    print_error "Directory '$dir' not found! Exiting."
+    exit 2
+fi
+
+cd "$dir" || { print_error "Failed to change to directory '$dir'"; exit 3; }
+
+# Init git repo if not already initialized
+if [ -d ".git" ]; then
+    print_info "This directory is already a git repository."
+else
+    print_info "Initializing Git repository..."
+    git init || { print_error "Git initialization failed."; exit 4; }
+    print_success "Git repository initialized."
+fi
+
+# Add all files
+print_info "Adding all files to staging..."
+git add . || { print_error "Failed to add files."; exit 5; }
+
+# Commit changes
+print_info "Committing changes..."
+git commit -m "$commit_message" || { 
+    if git diff --cached --quiet; then
+        print_info "No changes to commit (everything is already committed)."
+    else
+        print_error "Commit failed."
+        exit 6
+    fi
+}
+print_success "Commit done with message: '$commit_message'"
+
+# Loop until successful push
+while true; do
+    # Ask for remote URL
+    read -rp "🔗 Enter remote repository URL: " remote_url
+
+    if [ -z "$remote_url" ]; then
+        print_error "Remote URL cannot be empty. Please try again."
+        continue
+    fi
+
+    # Set remote (remove existing origin if needed)
+    if git remote | grep -q "^origin$"; then
+        print_info "Remote 'origin' already exists. Replacing it..."
+        git remote remove origin
+    fi
+    git remote add origin "$remote_url" && print_success "Remote 'origin' set to '$remote_url'"
+
+    # Ensure we're on master branch
+    current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+    if [ "$current_branch" != "master" ]; then
+        print_info "Switching branch to 'master'..."
+        git branch -M master || { print_error "Failed to switch to 'master' branch."; exit 7; }
+        print_success "Now on 'master' branch."
+    else
+        print_info "Already on 'master' branch."
+    fi
+
+    # Try pushing
+    print_info "Pushing to remote 'master' branch..."
+    if git push -u origin master; then
+        print_success "Pushed to 'master' branch 🚀"
+        break  # Push successful, exit loop
+    else
+        print_error "Push failed! 😢 The remote URL might be incorrect or inaccessible."
+        print_info "Let's try entering the remote URL again."
+    fi
+done
+
+# Final message
+print_success "All done! Git repo is fully initialized, committed, and pushed 🙌"
+
+

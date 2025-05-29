@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Prompt for directory
+read -rp "Enter the directory to check for symlinks: " dir
+
+# Check if the directory exists
+if [ ! -d "$dir" ]; then
+    echo "❌ Directory '$dir' does not exist."
+    exit 1
+fi
+
+# Check for broken symlinks and display the status of all symlinks
+echo "🔍 Checking symlinks in directory '$dir'..."
+
+# List all symlinks and check if they're broken
+find "$dir" -type l -exec bash -c '
+  for symlink; do
+    if [ ! -e "$symlink" ]; then
+      echo "❌ Broken symlink: $symlink"
+    else
+      echo "✅ Valid symlink: $symlink"
+    fi
+  done
+' bash {} +
+
+echo "✅ Completed checking symlinks!"
+

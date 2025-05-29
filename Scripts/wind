@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+BORDER=10  # Border thickness to trigger
+DELAY=0.01 # Delay between mouse checks
+
+while true; do
+    read -r mx my <<< $(hyprctl cursorpos | sed 's/,//')
+    window=$(hyprctl activewindow -j)
+
+    wx=$(echo "$window" | jq '.at[0]')
+    wy=$(echo "$window" | jq '.at[1]')
+    ww=$(echo "$window" | jq '.size[0]')
+    wh=$(echo "$window" | jq '.size[1]')
+
+    # Calculate window edges
+    rx=$((wx + ww))
+    by=$((wy + wh))
+
+    # Check if mouse is within the edge zones
+    near_right=$((mx >= rx - BORDER && mx <= rx))
+    near_bottom=$((my >= by - BORDER && my <= by))
+
+    # Only resize from bottom-right for simplicity
+    if [[ $near_right -eq 1 && $near_bottom -eq 1 ]]; then
+        # Wait for right-click press (button 3)
+        while [[ "$(cat /proc/bus/input/devices | grep -i mouse)" != *"mouse3"* ]]; do sleep 0.1; done
+
+        # Capture initial position
+        read -r start_x start_y <<< $(hyprctl cursorpos | sed 's/,//')
+
+        # Track until mouse is released
+        while true; do
+            read -r cur_x cur_y <<< $(hyprctl cursorpos | sed 's/,//')
+            dx=$((cur_x - start_x))
+            dy=$((cur_y - start_y))
+
+            # Send resize
+            hyprctl dispatch resizeactive $dx $dy
+
+            sleep $DELAY
+        done
+    fi
+
+    sleep $DELAY
+done
+

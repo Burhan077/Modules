@@ -1,0 +1,106 @@
+#!/bin/bash
+
+DATAFILE="$HOME/.config/.size.json"
+mkdir -p "$(dirname "$DATAFILE")"
+if [[ ! -f "$DATAFILE" ]] || ! jq empty "$DATAFILE" 2>/dev/null; then
+  echo '{}' > "$DATAFILE"
+fi
+
+WINDOW_JSON=$(hyprctl activewindow -j)
+APP=$(echo "$WINDOW_JSON" | jq -r '.class')
+WIN_ID=$(echo "$WINDOW_JSON" | jq '.id')
+IS_FLOATING=$(echo "$WINDOW_JSON" | jq '.floating')
+
+save_geometry() {
+  local x=$1
+  local y=$2
+  local w=$3
+  local h=$4
+  jq --arg app "$APP" --argjson x "$x" --argjson y "$y" --argjson w "$w" --argjson h "$h" \
+    '.[$app] = {x: $x, y: $y, w: $w, h: $h}' "$DATAFILE" > "$DATAFILE.tmp" && mv "$DATAFILE.tmp" "$DATAFILE"
+  echo "Saved geometry for $APP"
+}
+
+clamp() {
+  local val=$1
+  local min=$2
+  local max=$3
+  if (( val < min )); then echo "$min"
+  elif (( val > max )); then echo "$max"
+  else echo "$val"
+  fi
+}
+
+get_screen_resolution() {
+  local res=$(hyprctl monitors -j | jq -r '.[0] | "\(.resolution[0]) \(.resolution[1])"')
+  echo "$res"
+}
+
+force_resize_and_clamp() {
+  local x=$1
+  local y=$2
+  local w=$3
+  local h=$4
+
+  read -r SCREEN_W SCREEN_H <<< "$(get_screen_resolution)"
+
+  # Clamp width and height to screen size
+  local CW=$(clamp "$w" 100 "$SCREEN_W")
+  local CH=$(clamp "$h" 100 "$SCREEN_H")
+
+  # Clamp position to keep window fully inside screen
+  local CX=$(clamp "$x" 0 $((SCREEN_W - CW)))
+  local CY=$(clamp "$y" 0 $((SCREEN_H - CH)))
+
+  hyprctl dispatch "[id=$WIN_ID]" movewindowpixel exact "$CX" "$CY"
+  hyprctl dispatch "[id=$WIN_ID]" resizewindowpixel exact "$CW" "$CH"
+
+  # Wait for Hyprland to apply
+  sleep 0.15
+
+  # Double-check actual window size, fix if needed
+  local updated_json=$(hyprctl activewindow -j)
+  local real_w=$(echo "$updated_json" | jq '.size[0]')
+  local real_h=$(echo "$updated_json" | jq '.size[1]')
+
+  if (( real_w > SCREEN_W )); then real_w=$SCREEN_W; fi
+  if (( real_h > SCREEN_H )); then real_h=$SCREEN_H; fi
+
+  if (( real_w != CW || real_h != CH )); then
+    hyprctl dispatch "[id=$WIN_ID]" resizewindowpixel exact "$real_w" "$real_h"
+  fi
+}
+
+if [[ "$IS_FLOATING" == "true" ]]; then
+  # Save geometry and toggle off floating
+  X=$(echo "$WINDOW_JSON" | jq '.at[0]')
+  Y=$(echo "$WINDOW_JSON" | jq '.at[1]')
+  W=$(echo "$WINDOW_JSON" | jq '.size[0]')
+  H=$(echo "$WINDOW_JSON" | jq '.size[1]')
+  save_geometry "$X" "$Y" "$W" "$H"
+  hyprctl dispatch togglefloating
+  echo "Floating OFF for $APP"
+else
+  # Toggle floating on and restore or default size clamped to screen
+  hyprctl dispatch togglefloating
+  sleep 0.2
+
+  SAVED_X=$(jq -r --arg app "$APP" '.[$app].x // empty' "$DATAFILE")
+  SAVED_Y=$(jq -r --arg app "$APP" '.[$app].y // empty' "$DATAFILE")
+  SAVED_W=$(jq -r --arg app "$APP" '.[$app].w // empty' "$DATAFILE")
+  SAVED_H=$(jq -r --arg app "$APP" '.[$app].h // empty' "$DATAFILE")
+
+  if [[ -n "$SAVED_X" && -n "$SAVED_Y" && -n "$SAVED_W" && -n "$SAVED_H" ]]; then
+    force_resize_and_clamp "$SAVED_X" "$SAVED_Y" "$SAVED_W" "$SAVED_H"
+    echo "Restored and clamped size for $APP"
+  else
+    read -r SCREEN_W SCREEN_H <<< "$(get_screen_resolution)"
+    DEFAULT_W=$(( SCREEN_W * 80 / 100 ))
+    DEFAULT_H=$(( SCREEN_H * 80 / 100 ))
+    DEFAULT_X=$(( (SCREEN_W - DEFAULT_W) / 2 ))
+    DEFAULT_Y=$(( (SCREEN_H - DEFAULT_H) / 2 ))
+    force_resize_and_clamp "$DEFAULT_X" "$DEFAULT_Y" "$DEFAULT_W" "$DEFAULT_H"
+    echo "Set default clamped floating size for $APP"
+  fi
+fi
+

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+img_path="/home/agen90/Pictures/Screenshots/screenshot_$timestamp.png"
+
+grim -g "$(slurp)" "$img_path"
+
+# Launch swappy and wait until it closes
+swappy -f "$img_path"
+
+
+# Optional notify
+notify-send "📸 Screenshot edited & copied"
+

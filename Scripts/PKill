@@ -1,0 +1,27 @@
+#!/bin/bash
+# kill_appimage.sh
+
+read -rp "Enter the full path of the process to kill: " APP_PATH
+
+if [ -z "$APP_PATH" ]; then
+    echo "No path entered. Exiting."
+    exit 1
+fi
+
+PID=$(pgrep -f "$APP_PATH")
+
+if [ -n "$PID" ]; then
+    echo "Found process with PID $PID matching path '$APP_PATH'."
+    echo "Killing the process..."
+    kill "$PID"
+    sleep 2
+    if ps -p "$PID" > /dev/null; then
+        echo "Process still alive. Forcing kill..."
+        kill -9 "$PID"
+    else
+        echo "Successfully killed."
+    fi
+else
+    echo "No process found matching '$APP_PATH'."
+fi
+
