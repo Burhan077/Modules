@@ -1,7 +1,4 @@
 
-<div align="center">
-
-![hyde_banner](https://raw.githubusercontent.com/prasanthrangan/hyprdots/main/Source/assets/hyde_banner.png)
 
 <br>
 
