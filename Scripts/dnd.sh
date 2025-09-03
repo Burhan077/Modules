@@ -71,7 +71,7 @@ toggle_dnd() {
             set_state_file "off"
         fi
         sleep 0.2
-        send_notify "🔔 DND Disabled" "Notifications are now active." "dnd-off.svg"
+        send_notify " DND Disabled" "Notifications are now active." "dnd-off.svg"
     else
         # Turn ON DND
         if use_dunstctl; then
@@ -81,13 +81,13 @@ toggle_dnd() {
             set_state_file "on"
         fi
         sleep 0.2
-        send_notify "🔕 DND Enabled" "Notifications are silenced." "dnd-on.svg"
+        send_notify " DND Enabled" "Notifications are silenced." "dnd-on.svg"
     fi
 }
 
 # -------------- ENTRY ----------------
 if [ "$(notifier_backend)" = "none" ]; then
-    echo "❌ Neither Dunst nor Mako is running. Cannot toggle DND."
+    echo " Neither Dunst nor Mako is running. Cannot toggle DND."
     exit 1
 fi
 
