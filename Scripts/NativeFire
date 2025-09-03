@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Prompt user for URL and App Name
-read -rp "🌐 Enter the website URL (e.g. https://github.com): " site_url
-read -rp "📛 Enter a name for the app (e.g. GitHub): " app_name
+read -rp " Enter the website URL (e.g. https://github.com): " site_url
+read -rp " Enter a name for the app (e.g. GitHub): " app_name
 
 # Check if Nativefier is installed
 if ! command -v nativefier &> /dev/null; then
-    echo "❌ Nativefier is not installed. Run: sudo npm install -g nativefier"
+    echo " Nativefier is not installed. Run: sudo npm install -g nativefier"
     exit 1
 fi
 
@@ -15,14 +15,14 @@ read -rp "🖼 Enter full path to the icon file (PNG or SVG): " icon_path
 
 # Validate icon path
 if [ ! -f "$icon_path" ]; then
-    echo "❌ Icon not found! Please run again with a valid path."
+    echo " Icon not found! Please run again with a valid path."
     exit 1
 fi
 
 # Create a temp icon copy as icon.png in /tmp
 tmp_icon_path="/tmp/icon.png"
 cp "$icon_path" "$tmp_icon_path"
-echo "📥 Icon copied to $tmp_icon_path for use with Nativefier"
+echo " Icon copied to $tmp_icon_path for use with Nativefier"
 
 # Check/create the target directory
 target_dir="$HOME/.local/Apps"
@@ -32,16 +32,16 @@ mkdir -p "$target_dir"
 if command -v electron &> /dev/null; then
     elec_ver=$(electron36 --version | sed 's/v//')
     elec_path=$(which electron36)
-    echo "✅ Found Electron $elec_ver at $elec_path"
+    echo " Found Electron $elec_ver at $elec_path"
 else
-    echo "⚠️ Electron not found! Falling back to Nativefier's auto-download."
+    echo " Electron not found! Falling back to Nativefier's auto-download."
     elec_ver=""
     elec_path=""
 fi
 
 # Show summary
-echo "📦 Creating app '$app_name' from '$site_url'..."
-echo "📁 Target directory: $target_dir"
+echo " Creating app '$app_name' from '$site_url'..."
+echo " Target directory: $target_dir"
 
 # Run Nativefier
 XCURSOR_THEME=Bibata-Modern-Ice XCURSOR_SIZE=24 \
@@ -63,11 +63,11 @@ generated_folder="${app_name// /-}-linux-x64"
 
 # Check if it was created
 if [ -d "$generated_folder" ]; then
-    echo "🚀 Moving '$generated_folder' to $target_dir..."
+    echo " Moving '$generated_folder' to $target_dir..."
     mv "$generated_folder" "$target_dir/"
-    echo "✅ App '$app_name' moved successfully to $target_dir!"
+    echo " App '$app_name' moved successfully to $target_dir!"
 else
-    echo "❌ Error: Could not find the generated folder '$generated_folder'."
+    echo " Error: Could not find the generated folder '$generated_folder'."
     exit 1
 fi
 
@@ -75,5 +75,5 @@ fi
 rm "$tmp_icon_path"
 
 echo ""
-read -rp "✅ All done! Press Enter to exit..."
+read -rp " All done! Press Enter to exit..."
 
