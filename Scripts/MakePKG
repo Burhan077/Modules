@@ -5,7 +5,7 @@
 echo "-----------------------------------------------------------------"
 echo "🌐 Build a Nativefier App for Linux"
 echo "💥 Deletes all *-debug packages except vim-debug"
-echo "📦 Installs everything to /home/agent90/Mount/<AppName>"
+echo "📦 Installs everything to ~/Mount/<AppName>"
 echo "-----------------------------------------------------------------"
 
 # === 💣 Delete all -debug packages except vim-debug
@@ -37,7 +37,7 @@ read -p "📛 Gimme a Name: " app_name
 read -p "🔗 Gimme a URL: " app_url
 read -p "🖼️ Path to icon (PNG): " icon_path
 
-build_dir="/home/agent90/Mount/$app_name"
+build_dir="$HOME/Mount/$app_name"
 
 echo "📂 Creating build directory at $build_dir..."
 mkdir -p "$build_dir"
