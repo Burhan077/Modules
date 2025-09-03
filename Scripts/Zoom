@@ -10,7 +10,7 @@
   --app-id=fdbibeljcgcjkpedilpdafnjdmbjjjep
 
 # Launch the tray in background
-python ~/.config/zoomtray/zoomtray.py &
+python $HOME/.config/zoomtray/zoomtray.py &
 
 
 
