@@ -10,7 +10,7 @@ if [ ! -d "$dir" ]; then
 fi
 
 # Check for broken symlinks and display the status of all symlinks
-echo "🔍 Checking symlinks in directory '$dir'..."
+echo " Checking symlinks in directory '$dir'..."
 
 # List all symlinks and check if they're broken
 find "$dir" -type l -exec bash -c '
