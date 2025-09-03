@@ -5,7 +5,7 @@ read -rp "Enter the directory to check for symlinks: " dir
 
 # Check if the directory exists
 if [ ! -d "$dir" ]; then
-    echo "❌ Directory '$dir' does not exist."
+    echo " Directory '$dir' does not exist."
     exit 1
 fi
 
@@ -16,9 +16,9 @@ echo "🔍 Checking symlinks in directory '$dir'..."
 find "$dir" -type l -exec bash -c '
   for symlink; do
     if [ ! -e "$symlink" ]; then
-      echo "❌ Broken symlink: $symlink"
+      echo " Broken symlink: $symlink"
     else
-      echo "✅ Valid symlink: $symlink"
+      echo " Valid symlink: $symlink"
     fi
   done
 ' bash {} +
