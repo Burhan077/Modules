@@ -2,14 +2,14 @@
 
 # Get current directory
 CURRENT_DIR=$(pwd)
-echo "📂 Current directory: $CURRENT_DIR"
+echo " Current directory: $CURRENT_DIR"
 
 # Ask for the icon file path
-read -rp "👉 Enter full path to the icon file you want to duplicate: " ICON_PATH
+read -rp " Enter full path to the icon file you want to duplicate: " ICON_PATH
 
 # Check if the icon file exists
 if [ ! -f "$ICON_PATH" ]; then
-    echo "❌ Error: Icon file not found!"
+    echo " Error: Icon file not found!"
     exit 1
 fi
 
@@ -24,11 +24,11 @@ NAMES=(
 )
 
 # Copy with these sleek names
-echo "🚀 Copying icon 50 times with spicy tech names..."
+echo " Copying icon 50 times with spicy tech names..."
 for NAME in "${NAMES[@]}"; do
     cp "$ICON_PATH" "$CURRENT_DIR/$NAME"
-    echo "✅ Copied as: $NAME"
+    echo " Copied as: $NAME"
 done
 
-echo "🎉 All done! 50 copies created in: $CURRENT_DIR"
+echo " All done! 50 copies created in: $CURRENT_DIR"
 
