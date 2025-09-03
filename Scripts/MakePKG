@@ -3,43 +3,43 @@
 #set -e
 
 echo "-----------------------------------------------------------------"
-echo "🌐 Build a Nativefier App for Linux"
-echo "💥 Deletes all *-debug packages except vim-debug"
-echo "📦 Installs everything to ~/Mount/<AppName>"
+echo " Build a Nativefier App for Linux"
+echo " Deletes all *-debug packages except vim-debug"
+echo "Installs everything to ~/Mount/<AppName>"
 echo "-----------------------------------------------------------------"
 
-# === 💣 Delete all -debug packages except vim-debug
-echo "🧹 Cleaning up orphaned -debug packages..."
+# ===  Delete all -debug packages except vim-debug
+echo " Cleaning up orphaned -debug packages..."
 
 # Get list of debug packages excluding vim-debug
 debug_pkgs=$(pacman -Qq | grep -- '-debug$' | grep -v '^vim-debug$')
 
 # Debug output to check what is found
-echo "👀 Found the following debug packages: $debug_pkgs"
+echo " Found the following debug packages: $debug_pkgs"
 
 # If there are debug packages, remove them
 if [[ -n "$debug_pkgs" ]]; then
-    echo "🗑️ Removing: $debug_pkgs"
+    echo " Removing: $debug_pkgs"
     sudo pacman -Rns --noconfirm $debug_pkgs
     # Check if pacman ran successfully
     if [ $? -eq 0 ]; then
-        echo "✅ Successfully removed debug packages."
+        echo " Successfully removed debug packages."
     else
-        echo "❌ Error: Failed to remove some debug packages."
+        echo " Error: Failed to remove some debug packages."
         exit 1
     fi
 else
-    echo "✅ No unnecessary -debug packages found."
+    echo " No unnecessary -debug packages found."
 fi
 
 # === ✨ Prompt for user input
-read -p "📛 Gimme a Name: " app_name
-read -p "🔗 Gimme a URL: " app_url
-read -p "🖼️ Path to icon (PNG): " icon_path
+read -p " Gimme a Name: " app_name
+read -p " Gimme a URL: " app_url
+read -p " Path to icon (PNG): " icon_path
 
 build_dir="$HOME/Mount/$app_name"
 
-echo "📂 Creating build directory at $build_dir..."
+echo " Creating build directory at $build_dir..."
 mkdir -p "$build_dir"
 cp "$icon_path" "$build_dir/icon.png"
 
@@ -53,7 +53,7 @@ setInterval(() => {
 }, 5000);
 EOF
 
-# === 🌒 dark-mode.css ===
+# ===  dark-mode.css ===
 cat > "$build_dir/dark-mode.css" <<'EOF'
 @media (prefers-color-scheme: dark) {
   html {
@@ -76,7 +76,7 @@ Categories=Network;Chat;
 StartupNotify=true
 EOF
 
-# === 📦 PKGBUILD ===
+# ===  PKGBUILD ===
 cat > "$build_dir/PKGBUILD" <<EOF
 # Maintainer: HP
 
@@ -126,10 +126,10 @@ package() {
 }
 EOF
 
-# === 🧪 Build the package ===
+# ===  Build the package ===
 cd "$build_dir"
-echo "🚀 Running makepkg -si --noconfirm..."
+echo " Running makepkg -si --noconfirm..."
 makepkg -si --noconfirm
 
-echo "✅ Done! App '$app_name' installed to ~/Mount/$app_name and added to desktop."
+echo "Done! App '$app_name' installed to ~/Mount/$app_name and added to desktop."
 
