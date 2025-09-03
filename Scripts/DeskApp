@@ -30,9 +30,9 @@ EOF
 chmod +x "$DESKTOP_DIR/$FILENAME"
 
 # Update the desktop database (won't hurt if already updated)
-echo "🔄 Updating desktop database..."
-update-desktop-database "$DESKTOP_DIR" 2>/dev/null || echo "⚠️  'update-desktop-database' failed or not found. You may need to install 'desktop-file-utils'."
+echo " Updating desktop database..."
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || echo "  'update-desktop-database' failed or not found. You may need to install 'desktop-file-utils'."
 
-echo "✅ Desktop entry created at: $DESKTOP_DIR/$FILENAME"
+echo " Desktop entry created at: $DESKTOP_DIR/$FILENAME"
 echo ""
 read -rp "Press Enter to close this window..."
