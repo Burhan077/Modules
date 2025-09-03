@@ -3,7 +3,7 @@
 # ------------------ CONFIG ------------------
 scrDir=$(dirname "$(realpath "$0")")
 confDir="${scrDir}/config"
-icon_dir="~/.config/dunst/icons/brightness"  # Your icon directory
+icon_dir="$HOME/.config/dunst/icons/brightness"  # Your icon directory
 use_swayosd=false
 notify_id=91191
 default_step=5  # Default increment step of 5%
@@ -34,7 +34,7 @@ notify_brightness() {
 
     # Send notification with nerdy backlight info
     notify-send -r $notify_id -t 1500 -h int:value:$percent -u normal -i "$icon" \
-        "💡 Brightness Adjusted" \
+        " Brightness Adjusted" \
         "Current brightness: ${percent}%\n${intel_info}"
 }
 # --------------------------------------------
