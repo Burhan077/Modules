@@ -1,7 +1,0 @@
-#!/bin/bash
-
-
-env GOOGLE_API_KEY=AIzaSyA7iNO_Ec4vCN-_1miPFxBYHR-XucthA30 \
-GOOGLE_DEFAULT_CLIENT_ID=983491506702-4cv5fjcunul08r842e1h7b69v7oao1v3.apps.googleusercontent.com \
-GOOGLE_DEFAULT_CLIENT_SECRET=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 \
-chromium --enable-features=SyncSupport --proxy-server="socks5://127.0.0.1:9050" %U
