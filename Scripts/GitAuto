@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Function to print colorful messages
-print_info() { echo -e "\e[34mℹ️  $1\e[0m"; }
-print_success() { echo -e "\e[32m✅ $1\e[0m"; }
-print_error() { echo -e "\e[31m❌ $1\e[0m"; }
+print_info() { echo -e "\e[34mℹ  $1\e[0m"; }
+print_success() { echo -e "\e[32m $1\e[0m"; }
+print_error() { echo -e "\e[31m $1\e[0m"; }
 
 # Prompt for inputs
-read -rp "📂 Enter the directory to initialize git repo: " dir
-read -rp "📝 Enter the commit message for the initial commit (default: 'Initial commit'): " commit_message
+read -rp " Enter the directory to initialize git repo: " dir
+read -rp " Enter the commit message for the initial commit (default: 'Initial commit'): " commit_message
 
 # Set default commit message if empty
 commit_message=${commit_message:-Initial commit}
@@ -48,7 +48,7 @@ print_success "Commit done with message: '$commit_message'"
 # Loop until successful push
 while true; do
     # Ask for remote URL
-    read -rp "🔗 Enter remote repository URL: " remote_url
+    read -rp " Enter remote repository URL: " remote_url
 
     if [ -z "$remote_url" ]; then
         print_error "Remote URL cannot be empty. Please try again."
@@ -75,15 +75,15 @@ while true; do
     # Try pushing
     print_info "Pushing to remote 'master' branch..."
     if git push -u origin master; then
-        print_success "Pushed to 'master' branch 🚀"
+        print_success "Pushed to 'master' branch "
         break  # Push successful, exit loop
     else
-        print_error "Push failed! 😢 The remote URL might be incorrect or inaccessible."
+        print_error "Push failed!  The remote URL might be incorrect or inaccessible."
         print_info "Let's try entering the remote URL again."
     fi
 done
 
 # Final message
-print_success "All done! Git repo is fully initialized, committed, and pushed 🙌"
+print_success "All done! Git repo is fully initialized, committed, and pushed "
 
 
