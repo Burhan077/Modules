@@ -11,5 +11,5 @@ grim "$img_path"
 swappy -f "$img_path"
 
 # Send notification
-notify-send "📸 Fullscreen Screenshot" "Saved and copied to clipboard"
+notify-send " Fullscreen Screenshot" "Saved and copied to clipboard"
 
