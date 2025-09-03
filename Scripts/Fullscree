@@ -2,7 +2,7 @@
 
 # Generate timestamped filename
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
-img_path="~/Pictures/Screenshots/screenshot_$timestamp.png"
+img_path="$HOME/Pictures/Screenshots/screenshot_$timestamp.png"
 
 # Take fullscreen screenshot
 grim "$img_path"
