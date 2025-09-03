@@ -8,27 +8,27 @@ REMOVE_GRUB=false  # Set to true if you want to remove GRUB after setup
 ### === STEP 1: Detect root partition UUID ===
 ROOT_UUID=$(blkid -s UUID -o value "$(findmnt -n / -o SOURCE)")
 
-echo "📌 Root UUID: $ROOT_UUID"
+echo " Root UUID: $ROOT_UUID"
 
 ### === STEP 2: Confirm ESP is mounted ===
 if ! mountpoint -q "$ESP_MOUNT"; then
-  echo "❌ ERROR: $ESP_MOUNT is not a mounted ESP. Mount it and rerun."
+  echo " ERROR: $ESP_MOUNT is not a mounted ESP. Mount it and rerun."
   exit 1
 fi
 
 ### === STEP 3: Install systemd-boot ===
-echo "🚀 Installing systemd-boot to $ESP_MOUNT..."
+echo " Installing systemd-boot to $ESP_MOUNT..."
 bootctl install
 
 ### === STEP 4: Create loader.conf ===
-echo "🛠️ Writing loader.conf..."
+echo " Writing loader.conf..."
 cat <<EOF | sudo tee "${ESP_MOUNT}/loader/loader.conf"
 default arch-clear.conf
 timeout 5
 editor no
 EOF
 ### === STEP 5: Create arch-clear.conf ===
-echo "🌤️ Creating entry for linux-clear..."
+echo " Creating entry for linux-clear..."
 cat <<EOF | sudo tee "${ESP_MOUNT}/loader/entries/arch-clear.conf"
 title   Arch Linux (Clear Kernel)
 linux   /vmlinuz-linux-clear
@@ -38,7 +38,7 @@ options root=UUID=${ROOT_UUID} rw
 EOF
 
 ### === STEP 6: Create arch-zen.conf ===
-echo "🧬 Creating entry for linux-zen..."
+echo "Creating entry for linux-zen..."
 cat <<EOF | sudo tee "${ESP_MOUNT}/loader/entries/arch-zen.conf"
 title   Arch Linux (Zen Kernel)
 linux   /vmlinuz-linux-zen
@@ -49,19 +49,19 @@ EOF
 
 
 ### === STEP 7: Fix random-seed file permissions ===
-echo "🔐 Fixing permissions on /boot/loader..."
+echo " Fixing permissions on /boot/loader..."
 chmod go-rx "${ESP_MOUNT}" || true
 chmod go-r "${ESP_MOUNT}/loader/random-seed" || true
 
 ### === STEP 8: Optionally remove GRUB ===
 if [ "$REMOVE_GRUB" = true ]; then
-  echo "🔥 Removing GRUB..."
+  echo " Removing GRUB..."
   sudo pacman -Rns --noconfirm grub
   sudo rm -rf /boot/grub
   sudo efibootmgr | grep -i grub | awk '{print $1}' | sed 's/Boot//;s/\*//' | xargs -I{} sudo efibootmgr -b {} -B
 else
-  echo "🧯 GRUB retained for fallback. Set REMOVE_GRUB=true to delete."
+  echo " GRUB retained for fallback. Set REMOVE_GRUB=true to delete."
 fi
 
-echo -e "\n✅ Done! Reboot and select 'Linux Boot Manager' in your firmware boot menu!"
+echo -e "\n Done! Reboot and select 'Linux Boot Manager' in your firmware boot menu!"
 
