@@ -1,7 +1,7 @@
 #!/bin/bash
 
 timestamp=$(date +%Y-%m-%d_%H-%M-%S)
-img_path="/home/agen90/Pictures/Screenshots/screenshot_$timestamp.png"
+img_path="$HOME/Pictures/Screenshots/screenshot_$timestamp.png"
 
 grim -g "$(slurp)" "$img_path"
 
