@@ -5,7 +5,7 @@ active_window_json=$(hyprctl activewindow -j 2>/dev/null)
 
 # Check if we actually got something
 if [[ -z "$active_window_json" || "$active_window_json" == "null" ]]; then
-  notify-send "❌ No active window to float!"
+  notify-send " No active window to float!"
   exit 1
 fi
 
@@ -14,7 +14,7 @@ win_address=$(echo "$active_window_json" | jq -r '.address')
 
 # Double check
 if [[ -z "$win_address" || "$win_address" == "0x0" ]]; then
-  notify-send "❌ Invalid window address"
+  notify-send " Invalid window address"
   exit 1
 fi
 
