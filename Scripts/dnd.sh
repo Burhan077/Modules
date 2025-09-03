@@ -2,7 +2,7 @@
 
 # ------------ CONFIG ----------------
 notify_id=929292
-icon_dir="~/.config/dunst/icons/notifications"
+icon_dir="$HOME/.config/dunst/icons/notifications"
 notify_timeout=5000  # 5 seconds
 state_file="/tmp/.dndstate"  # Fallback for non-dunstctl use
 # ------------------------------------
