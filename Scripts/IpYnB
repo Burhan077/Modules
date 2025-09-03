@@ -5,7 +5,7 @@ echo -n "📁 Enter the full path to the folder containing .py files: "
 read source_dir
 
 # -------- DESTINATION --------
-target_dir="/home/agent90/Python/Ipynb"
+target_dir="~/Python/Ipynb"
 
 # -------- REQUIREMENT CHECKS --------
 if ! command -v jupytext &> /dev/null; then
