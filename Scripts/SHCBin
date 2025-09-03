@@ -7,7 +7,7 @@ if ! command -v shc &> /dev/null; then
 fi
 
 # Check/create the target directory
-target_dir="~/Sys"
+target_dir="$HOME/Sys"
 mkdir -p "$target_dir"
 
 while true; do
