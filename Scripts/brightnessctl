@@ -3,7 +3,7 @@
 # ------------------ CONFIG ------------------
 scrDir=$(dirname "$(realpath "$0")")
 confDir="${scrDir}/config"
-icon_dir="/home/agent90/.config/dunst/icons/brightness"  # Your icon directory
+icon_dir="~/.config/dunst/icons/brightness"  # Your icon directory
 use_swayosd=false
 notify_id=91191
 default_step=5  # Default increment step of 5%
