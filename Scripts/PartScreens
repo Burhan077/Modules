@@ -11,4 +11,3 @@ swappy -f "$img_path"
 
 # Optional notify
 notify-send " Screenshot edited & copied"
-
