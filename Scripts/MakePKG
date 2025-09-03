@@ -78,7 +78,7 @@ EOF
 
 # === 📦 PKGBUILD ===
 cat > "$build_dir/PKGBUILD" <<EOF
-# Maintainer: agent90
+# Maintainer: HP
 
 pkgname=$app_name
 pkgver=1.0.0
@@ -115,8 +115,8 @@ build() {
 }
 
 package() {
-  install -d "\$pkgdir/home/agent90/Mount/$app_name"
-  cp -r "\$srcdir/${app_name}-build/"* "\$pkgdir/home/agent90/Mount/$app_name/"
+  install -d "\$pkgdir$HOME/Mount/$app_name"
+  cp -r "\$srcdir/${app_name}-build/"* "\$pkgdir$HOME/Mount/$app_name/"
 
   install -d "\$pkgdir/usr/bin"
   ln -s /home/agent90/Mount/$app_name/$app_name "\$pkgdir/usr/bin/$app_name"
@@ -131,5 +131,5 @@ cd "$build_dir"
 echo "🚀 Running makepkg -si --noconfirm..."
 makepkg -si --noconfirm
 
-echo "✅ Done! App '$app_name' installed to /home/agent90/Mount/$app_name and added to desktop."
+echo "✅ Done! App '$app_name' installed to ~/Mount/$app_name and added to desktop."
 
